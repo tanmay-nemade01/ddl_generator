@@ -248,13 +248,15 @@ SELECT <CDC_TARGET1>
 NVL(replace(replace(replace(replace(FILE_DATE,'-',''),':',''),'.',''),' ',''),19700101000000000)::INTEGER AS FILE_DATE,
 'D' AS FILE_TYPE,
 OP, 
-0 AS FILE_ROWNUM,
+0::INTEGER AS FILE_ROWNUM,
 ROWID,
 1 AS F_VALID,
 NVL(FILE_DATE,to_timestamp('1970-01-01 00:00:00.000')) AS RUN_DATE
 FROM LARA_LANDING.CDC_<object name>;
 
 ALTER TABLE <object name> ADD COLUMN FILE_DATE INTEGER;
+
+UPDATE <object name> a SET FILE_DATE = 19700101000000000;
 
 UPDATE <object name> a SET a.FILE_DATE =b.FILE_DATE FROM (SELECT MAX(FILE_DATE) AS FILE_DATE,<table_key> from CDC_<object name> group by <table_key>) b where
 <a-b>;
