@@ -105,9 +105,9 @@ def main_function(json_data, table_name, aws_url, environment, schema, primary_k
         elif str(type_list[i])[:3].upper() == 'FLO':
             null_replacement.append('0')
         elif str(type_list[i])[:3].upper() == 'TIM':
-            null_replacement.append('"9999-12-31"')
+            null_replacement.append("'9999-12-31'")
         elif str(type_list[i])[:3].upper() == 'DAT':
-            null_replacement.append('"9999-12-31"')
+            null_replacement.append("'9999-12-31'")
         else:
             null_replacement.append("''")
 
