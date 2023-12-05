@@ -17,8 +17,8 @@ primary_keys_stage
 primary_keys_stage = primary_keys_stage[:-1]
 
 table_count = 'select count(*) from ' + table_name +';'
-stage_count = 'select count(distinct'+primary_keys_stage+') from @STG_S3_CDP_CMACGM_LARA_PRD_R/awscdc_cds/LRA_SCE_M/'+table_name+"/  (FILE_FORMAT => 'FF_PARQUET'));"
-op_d_count = 'select count(distinct'+primary_keys_stage+') from @STG_S3_CDP_CMACGM_LARA_PRD_R/awscdc_cds/LRA_SCE_M/'+table_name+"/  (FILE_FORMAT => 'FF_PARQUET')) where \$1\:OP = 'D';"
+stage_count = 'select count(distinct '+primary_keys_stage+') from @STG_S3_CDP_CMACGM_LARA_PRD_R/awscdc_cds/LRA_SCE_M/'+table_name+"/  (FILE_FORMAT => 'FF_PARQUET');"
+op_d_count = 'select count(distinct '+primary_keys_stage+') from @STG_S3_CDP_CMACGM_LARA_PRD_R/awscdc_cds/LRA_SCE_M/'+table_name+"/  (FILE_FORMAT => 'FF_PARQUET') where \$1\:OP = 'D';"
 st.write(table_count)
 st.write(stage_count)
 st.write(op_d_count)
