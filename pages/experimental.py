@@ -8,7 +8,7 @@ primary_keys = primary_keys.replace(' ','')
 primary_key_list = primary_keys.split(',')
 
 primary_keys_stage = ''
-for i in range len(primary_key_list):
+for i in range(len(primary_key_list)):
     primary_keys_stage = primary_keys_stage + '$1:'+primary_key_list[i]+','
 
 primary_keys_stage = primary_keys_stage[:-1]
