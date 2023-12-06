@@ -373,7 +373,7 @@ INSERT INTO CDC_<object name>_TEST
 		0 as F_VALID,
 		current_timestamp as RUN_DATE
 		from src_chg src 
-		inner join tgt_chg tgt on <tgt__src> -- #key#
+		inner join tgt_chg tgt on <src__tgt> -- #key#
 		where tgt.RECORD_HASH = src.RECORD_HASH
 
 		union
@@ -533,7 +533,7 @@ if file is not None:
     script_template = script_template.replace('<src-md>',pk_src_md[:-5])
     script_template = script_template.replace('<src-tgt>',pk_src_tgt[:-5])
     script_template = script_template.replace('<tgt-src>',pk_tgt_src[:-5])
-    script_template = script_template.replace('<tgt__src>',pk_src__tgt[:-5])
+    script_template = script_template.replace('<src__tgt>',pk_src__tgt[:-5])
     script_template = script_template.replace('<t-t3>',pk_t_t3[:-5])
     script_template = script_template.replace('<s-t>',pk_s_t[:-5])
     script_template = script_template.replace('<table_key>',primary_keys)
