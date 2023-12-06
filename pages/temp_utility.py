@@ -389,18 +389,7 @@ INSERT INTO CDC_<object name>_TEST
 -- CDC --
     UNION 
     SELECT 	-- #columns#
-	t.BOL_NUMBER,
-to_number(t.SEQ_NUMBER,38,10) as SEQ_NUMBER,
-t.USER_ID,
-t.LEVEL_TYPE,
-t.DATE_OF_CHANGE::timestamp as DATE_OF_CHANGE,
-t.LEVEL_ID,
-t.DATA_CHANGED,
-t.OLD_VALUE,
-t.NEW_VALUE,
-t.SHIPCOMP_CODE,
-t.CREATED_MONTH::timestamp as CREATED_MONTH,
-t.TK_DATE::timestamp as  TK_DATE,
+	<CDC_UNION>
     -- METADATA
     t.file_date,
     'D' AS FILE_TYPE,
