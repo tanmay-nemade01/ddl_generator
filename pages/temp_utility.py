@@ -485,7 +485,7 @@ if file is not None:
 
     pk_src__tgt = ''
     for i in range(int(data['No of Primary Key'][0])):
-        pk_src_tgt = pk_src_tgt + f'src.{primary_key_list[i]},{null_replacement[name_list.index(primary_key_list[i])]} = tgt.{primary_key_list[i]},{null_replacement[name_list.index(primary_key_list[i])]} and\n'
+        pk_src__tgt = pk_src__tgt + f'src.{primary_key_list[i]},{null_replacement[name_list.index(primary_key_list[i])]} = tgt.{primary_key_list[i]},{null_replacement[name_list.index(primary_key_list[i])]} and\n'
 
   
     pk_t_t3 = ''
