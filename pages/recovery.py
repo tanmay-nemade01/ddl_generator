@@ -229,20 +229,20 @@ def main_function(json_data, table_name, aws_url, environment, schema, primary_k
     st.dataframe(df)
     return df
 
-script_template = '''USE ROLE PRD_CDP_OFFICER;
-USE WAREHOUSE PRD_CDP_R_S_VW;
-USE DATABASE PRD_CDP_CMACGM;
-USE SCHEMA LARA;
+script_template = '''USE ROLE <env>_CDP_OFFICER;
+USE WAREHOUSE <env>_CDP_R_S_VW;
+USE DATABASE <env>_CDP_CMACGM;
+USE SCHEMA <SF_source>;
 -----------------------PREPARTION FOR RAW TO SFS--------
-ALTER TASK PRD_CDP_CMACGM.LARA.TS_LARA_<object name>_INGEST_MG SUSPEND;
+ALTER TASK <env>_CDP_CMACGM.<SF_source>.TS_<SF_source>_<object name>_INGEST_MG SUSPEND;
 
-ALTER PIPE PRD_CDP_CMACGM.LARA_LANDING.SP_<object name> SET PIPE_EXECUTION_PAUSED = TRUE;
+ALTER PIPE <env>_CDP_CMACGM.<SF_source>_LANDING.SP_<object name> SET PIPE_EXECUTION_PAUSED = TRUE;
 
 ---------------------- STRUCTURES --------------------------------
 
 -----Take backup of CDC table
 
-CREATE OR REPLACE TABLE CDC_<object name>_BK CLONE LARA_LANDING.CDC_<object name>;
+CREATE OR REPLACE TABLE CDC_<object name>_BK CLONE <SF_source>_LANDING.CDC_<object name>;
 
 ---Take backup of processed table
 
@@ -293,7 +293,7 @@ create or replace TABLE CDC_<object name>_TEST LIKE CDC_<object name>;
 create or replace TABLE <object name>_TEST LIKE <object name>;
 
 -- Create a stream for CDC to target table (processed)
-create or replace stream ST_LARA_<object name>_CDC on table CDC_<object name>_TEST APPEND_ONLY = TRUE;
+create or replace stream ST_<SF_source>_<object name>_CDC on table CDC_<object name>_TEST APPEND_ONLY = TRUE;
 ---------------------------------Manual Copy Into to Transient table----
 COPY INTO TRA_<object name> FROM(
 SELECT 
@@ -302,7 +302,7 @@ NVL(translate(to_char(TO_TIMESTAMP(REGEXP_SUBSTR(METADATA$FILENAME,'[0-9][0-9][0
 substr(split_part(metadata$filename,'/',4),1,1) as FILE_TYPE,
 	 $1:Op ,
       METADATA$FILE_ROW_NUMBER as FILE_ROWNUM-- Be careful at the case sensitivity
-FROM  @PRD_CDP_CMACGM.LARA.STG_S3_CDP_CMACGM_LARA_PRD_R/awscdc_cds/LRA_SCE_M/<object name>/(file_format => 'FF_PARQUET'));
+FROM  @<env>_CDP_CMACGM.<SF_source>.STG_S3_CDP_CMACGM_<SF_source>_<env>_R/awscdc_cds/LRA_SCE_M/<object name>/(file_format => 'FF_PARQUET'));
 
 -------------------------------
 INSERT INTO CDC_<object name>_TEST
@@ -404,7 +404,7 @@ INSERT INTO CDC_<object name>_TEST
 --243124606    
 
     merge into <object name>_TEST t
-	using(select * from (select row_number() over(partition by <table_key>  order by FILE_DATE desc NULLS LAST,  FILE_ROWNUM desc NULLS LAST) rk,* from ST_LARA_<object name>_CDC   where F_VALID = 1 ) where rk = 1 )s on <s-t> -- #key#
+	using(select * from (select row_number() over(partition by <table_key>  order by FILE_DATE desc NULLS LAST,  FILE_ROWNUM desc NULLS LAST) rk,* from ST_<SF_source>_<object name>_CDC   where F_VALID = 1 ) where rk = 1 )s on <s-t> -- #key#
 	when matched and s.op = 'D' and   s.FILE_DATE >= t.FILE_DATE then delete
 	when matched and s.op in ('U','I') and   s.FILE_DATE >= t.FILE_DATE then update set
 	-- #columns#
