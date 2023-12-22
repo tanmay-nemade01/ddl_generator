@@ -305,7 +305,7 @@ create or replace stream ST_<SF_source>_<object name>_CDC on table CDC_<object n
 ------------------------------ TASKS --------------------------------------------------------------
  CREATE OR REPLACE TASK TS_<SF_source>_<object name>_SQS
   WAREHOUSE = <env>_CDP_L_S_VW
-  SCHEDULE = '15 minute'
+  SCHEDULE = '30 minute'
   when system$stream_has_data('ST_<SF_source>_<object name>_SQS') 
   as select 1 ; 
   
