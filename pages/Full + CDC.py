@@ -10,18 +10,6 @@ primary_keys = primary_keys.upper()
 primary_keys = primary_keys.replace(' ','')
 primary_keys
 
-if environment == 'INT' or environment == 'UAT':
-	sio = 'NOPRD'
-else:
-	sio = 'PRD'
-
-if environment == 'INT':
-	wh = 'INT_CDP_L_B_VW'
-elif environment == 'UAT':
-	wh = 'UAT_CDP_L_B_VW'
-else:
-	wh = 'PRD_CDP_R_S_VW'
-
 def main_function(json_data, table_name, aws_url, environment, schema, primary_keys):
     # Load data from JSON file
     data = pd.DataFrame(json_data)
@@ -528,6 +516,17 @@ select * from table (information_schema.task_history(task_name=>''));'''
 
 file = st.file_uploader("Choose DDL file to upload")
 environment = st.selectbox('Select Environment',('INT', 'UAT', 'PRD'))
+if environment == 'INT' or environment == 'UAT':
+	sio = 'NOPRD'
+else:
+	sio = 'PRD'
+
+if environment == 'INT':
+	wh = 'INT_CDP_L_B_VW'
+elif environment == 'UAT':
+	wh = 'UAT_CDP_L_B_VW'
+else:
+	wh = 'PRD_CDP_R_S_VW'
 if file is not None:
     data  = pd.read_csv(file)
     data = main_function(data, table_name, aws_url, environment, schema, primary_keys)
