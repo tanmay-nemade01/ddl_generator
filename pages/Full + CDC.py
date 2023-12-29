@@ -10,6 +10,18 @@ primary_keys = primary_keys.upper()
 primary_keys = primary_keys.replace(' ','')
 primary_keys
 
+if environment == 'INT' or environment == 'UAT':
+	sio = 'NOPRD'
+else:
+	sio = 'PRD'
+
+if environment == 'INT':
+	wh = 'INT_CDP_L_B_VW'
+elif environment == 'UAT'
+	wh = 'UAT_CDP_L_B_VW'
+else:
+	wh = 'PRD_CDP_R_S_VW'
+
 def main_function(json_data, table_name, aws_url, environment, schema, primary_keys):
     # Load data from JSON file
     data = pd.DataFrame(json_data)
@@ -229,8 +241,8 @@ def main_function(json_data, table_name, aws_url, environment, schema, primary_k
     st.dataframe(df)
     return df
 
-script_template = '''USE ROLE NOPRD_CDP_OFFICER;--FOR PROD PRD_CDP_OFFICER
-USE WAREHOUSE <env>_CDP_L_S_VW;
+script_template = '''USE ROLE <sio>_CDP_OFFICER;--FOR PROD PRD_CDP_OFFICER
+USE WAREHOUSE <wh>;
 USE DATABASE <env>_CDP_CMACGM;
 
 USE SCHEMA <SF_source>;
@@ -240,7 +252,7 @@ USE SCHEMA <SF_source>;
 -- One stage for one table 
 CREATE OR REPLACE STAGE STG_CDP_<env>_<SF_source>_<object name> 
 url = '<AWS_URL>'
-STORAGE_INTEGRATION = SIO_CDP_NOPRD -- SIO_ADMINTEST_NOPROD (UAT/DEV) 
+STORAGE_INTEGRATION = SIO_CDP_<sio> -- SIO_ADMINTEST_NOPROD (UAT/DEV) 
 -- Activate DIRECTORY object name
 DIRECTORY = (ENABLE = TRUE AUTO_REFRESH = TRUE) ;
 
@@ -583,7 +595,8 @@ if file is not None:
 
     merge_string = '\n'.join(list(data['Merge U']))
     script_template = script_template.replace('<MERGE>',str(merge_string))
-
+	script_template = script_template.replace('<sio>',sio)
+	script_template = script_template.replace('<wh>',wh)
     script_template = script_template.replace('<env>',data['Environment'][0])
     script_template = script_template.replace('<SF_source>',data['Schema'][0])
     script_template = script_template.replace('<object name>',data['Table Name'][0])
