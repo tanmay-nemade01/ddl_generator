@@ -1,7 +1,6 @@
 import streamlit as st
 import pandas as pd
 
-environment = st.text_input('Enter Environment')
 schema = st.text_input('Enter Schema')   
 table_name = st.text_input('Enter table name')
 aws_url = st.text_input('Enter AWS link')
@@ -229,8 +228,8 @@ def main_function(json_data, table_name, aws_url, environment, schema, primary_k
     st.dataframe(df)
     return df
 
-script_template = '''USE ROLE NOPRD_CDP_OFFICER;--FOR PROD PRD_CDP_OFFICER
-USE WAREHOUSE <env>_CDP_L_S_VW;
+script_template = '''USE ROLE <sio>_CDP_OFFICER;--FOR PROD PRD_CDP_OFFICER
+USE WAREHOUSE <wh>;
 USE DATABASE <env>_CDP_CMACGM;
 
 USE SCHEMA <SF_source>;
@@ -266,7 +265,7 @@ SELECT * FROM <object name> WHERE FILE_DATE IS NULL;
 -- One stage for one table 
 CREATE OR REPLACE STAGE STG_CDP_<env>_<SF_source>_<object name> 
 url = '<AWS_URL>'
-STORAGE_INTEGRATION = SIO_CDP_NOPRD -- SIO_ADMINTEST_NOPROD (UAT/DEV) 
+STORAGE_INTEGRATION = SIO_CDP_<sio> -- SIO_ADMINTEST_NOPROD (UAT/DEV) 
 -- Activate DIRECTORY object name
 DIRECTORY = (ENABLE = TRUE AUTO_REFRESH = TRUE) ;
 
@@ -525,6 +524,18 @@ ALTER TASK TS_<SF_source>_<object name>_SQS RESUME;
 select * from table (information_schema.task_history(task_name=>''));'''
 
 file = st.file_uploader("Choose DDL file to upload")
+environment = st.selectbox('Select Environment',('INT', 'UAT', 'PRD'))
+if environment == 'INT' or environment == 'UAT':
+	sio = 'NOPRD'
+else:
+	sio = 'PRD'
+
+if environment == 'INT':
+	wh = 'INT_CDP_L_B_VW'
+elif environment == 'UAT':
+	wh = 'UAT_CDP_L_B_VW'
+else:
+	wh = 'PRD_CDP_R_S_VW'
 if file is not None:
     data  = pd.read_csv(file)
     data = main_function(data, table_name, aws_url, environment, schema, primary_keys)
@@ -599,6 +610,8 @@ if file is not None:
     script_template = script_template.replace('<MERGE>',str(merge_string))
 
     script_template = script_template.replace('<env>',data['Environment'][0])
+    script_template = script_template.replace('<sio>',sio)
+    script_template = script_template.replace('<wh>',wh)
     script_template = script_template.replace('<SF_source>',data['Schema'][0])
     script_template = script_template.replace('<object name>',data['Table Name'][0])
     script_template = script_template.replace('<AWS_URL>',data['AWS'][0])
