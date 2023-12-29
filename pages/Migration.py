@@ -297,6 +297,8 @@ ALTER table STA_<object name> add column FILE_ROWNUM integer;
 
  --- Creation of CDC table
 
+ ALTER TABLE <SF_source>.<object name> set tag ADMIN_INGEST_FLOWS.LOAD_TYPE= 'FULL_INCREMENTAL';
+
 
 
  -- Activate Change tracking for the stream on CDC table
