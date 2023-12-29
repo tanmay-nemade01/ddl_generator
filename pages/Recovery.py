@@ -1,7 +1,6 @@
 import streamlit as st
 import pandas as pd
 
-environment = st.text_input('Enter Environment')
 schema = st.text_input('Enter Schema')   
 table_name = st.text_input('Enter table name')
 aws_url = st.text_input('Enter AWS link')
@@ -229,8 +228,8 @@ def main_function(json_data, table_name, aws_url, environment, schema, primary_k
     st.dataframe(df)
     return df
 
-script_template = '''USE ROLE <env>_CDP_OFFICER;
-USE WAREHOUSE <env>_CDP_R_S_VW;
+script_template = '''USE ROLE <sio>_CDP_OFFICER;
+USE WAREHOUSE <wh>;
 USE DATABASE <env>_CDP_CMACGM;
 USE SCHEMA <SF_source>;
 -----------------------PREPARTION FOR RAW TO SFS--------
@@ -423,11 +422,14 @@ INSERT INTO CDC_<object name>_TEST
 
 
 
-    SELECT COUNT(*) FROM TRA_<object name>;--243124606
-    SELECT COUNT(*) FROM <object name>;--243124604 
-    SELECT COUNT(*) FROM CDC_<object name>;--243124606
+    SELECT COUNT(*) FROM TRA_<object name>;
+    SELECT COUNT(*) FROM <object name>;
+    SELECT COUNT(*) FROM CDC_<object name>;
 
-    SELECT MAX(FILE_DATE) FROM CDC_<object name>_TEST;--20231206041007733
+        SELECT COUNT(*) FROM <object name>_TEST;
+    SELECT COUNT(*) FROM CDC_<object name>_TEST;
+
+    SELECT MAX(FILE_DATE) FROM CDC_<object name>_TEST;
     
 
     ALTER TABLE <object name>_TEST SWAP WITH <object name>;
@@ -440,6 +442,18 @@ INSERT INTO CDC_<object name>_TEST
  DROP TABLE <object name>_TEST;'''
 
 file = st.file_uploader("Choose DDL file to upload")
+environment = st.selectbox('Select Environment',('INT', 'UAT', 'PRD'))
+if environment == 'INT' or environment == 'UAT':
+	sio = 'NOPRD'
+else:
+	sio = 'PRD'
+
+if environment == 'INT':
+	wh = 'INT_CDP_L_B_VW'
+elif environment == 'UAT':
+	wh = 'UAT_CDP_L_B_VW'
+else:
+	wh = 'PRD_CDP_R_S_VW'
 if file is not None:
     data  = pd.read_csv(file)
     data = main_function(data, table_name, aws_url, environment, schema, primary_keys)
@@ -515,6 +529,8 @@ if file is not None:
     script_template = script_template.replace('<MERGE>',str(merge_string))
 
     script_template = script_template.replace('<env>',data['Environment'][0])
+    script_template = script_template.replace('<sio>',sio)
+    script_template = script_template.replace('<wh>',wh)
     script_template = script_template.replace('<SF_source>',data['Schema'][0])
     script_template = script_template.replace('<object name>',data['Table Name'][0])
     script_template = script_template.replace('<AWS_URL>',data['AWS'][0])
