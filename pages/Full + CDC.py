@@ -595,8 +595,8 @@ if file is not None:
 
     merge_string = '\n'.join(list(data['Merge U']))
     script_template = script_template.replace('<MERGE>',str(merge_string))
-	script_template = script_template.replace('<sio>',sio)
-	script_template = script_template.replace('<wh>',wh)
+    script_template = script_template.replace('<sio>',sio)
+    script_template = script_template.replace('<wh>',wh)
     script_template = script_template.replace('<env>',data['Environment'][0])
     script_template = script_template.replace('<SF_source>',data['Schema'][0])
     script_template = script_template.replace('<object name>',data['Table Name'][0])
