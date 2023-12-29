@@ -17,7 +17,7 @@ else:
 
 if environment == 'INT':
 	wh = 'INT_CDP_L_B_VW'
-elif environment == 'UAT'
+elif environment == 'UAT':
 	wh = 'UAT_CDP_L_B_VW'
 else:
 	wh = 'PRD_CDP_R_S_VW'
