@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 
-environment = st.text_input('Enter Environment')
+
 schema = st.text_input('Enter Schema')   
 table_name = st.text_input('Enter table name')
 aws_url = st.text_input('Enter AWS link')
@@ -527,6 +527,7 @@ ALTER TASK TS_<SF_source>_<object name>_SQS RESUME;
 select * from table (information_schema.task_history(task_name=>''));'''
 
 file = st.file_uploader("Choose DDL file to upload")
+environment = st.selectbox('Select Environment',('INT', 'UAT', 'PRD'))
 if file is not None:
     data  = pd.read_csv(file)
     data = main_function(data, table_name, aws_url, environment, schema, primary_keys)
