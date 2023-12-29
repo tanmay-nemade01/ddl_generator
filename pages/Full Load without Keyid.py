@@ -269,6 +269,9 @@ FILE_DATE INT)
   MAX_DATA_EXTENSION_TIME_IN_DAYS = 1
   CHANGE_TRACKING = TRUE;
 
+  ALTER TABLE <SF_source>.<object name> set tag ADMIN_INGEST_FLOWS.LOAD_TYPE= 'FULL_LOAD';
+ALTER TABLE <SF_source>.copy_<object name> set tag ADMIN_INGEST_FLOWS.LOAD_TYPE= 'FULL_LOAD';
+
 -- create or replace stream ST_<SF_source>_<object name>_STA on table STA_<object name> APPEND_ONLY = TRUE;
 -- Append only is removed due to AWS is genertaing multiple files at same time. In copy task we consume only part of data hence APPEND_ONLY is removed
 
