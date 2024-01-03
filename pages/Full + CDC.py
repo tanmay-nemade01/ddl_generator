@@ -2,9 +2,12 @@ import streamlit as st
 import pandas as pd
 
 
-schema = st.text_input('Enter Schema')   
+schema = st.text_input('Enter Schema')
+schema = schema.upper()
 table_name = st.text_input('Enter table name')
+table_name = table_name.upper()
 aws_url = st.text_input('Enter AWS link')
+aws_url = aws_url.upper()
 primary_keys = st.text_input('Enter Primary Keys, seperated by commas if multiple')
 primary_keys = primary_keys.upper()
 primary_keys = primary_keys.replace(' ','')
