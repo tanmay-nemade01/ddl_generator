@@ -9,6 +9,7 @@ table_name = table_name.upper()
 table_name = table_name.replace(' ','')
 aws_url = st.text_input('Enter AWS link')
 aws_url = aws_url.replace(' ','')
+aws_url
 primary_keys = st.text_input('Enter Primary Keys, seperated by commas if multiple')
 primary_keys = primary_keys.upper()
 primary_keys = primary_keys.replace(' ','')
