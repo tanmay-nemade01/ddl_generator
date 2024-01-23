@@ -518,10 +518,11 @@ if file is not None:
     # script_template = script_template.replace('<table_key>',primary_keys)
     script_template = script_template.replace('<copy_table>',copy_table)
 
-    st.code(script_template)
+    
     st.download_button(
 	label="Download SQL Code",
         data=script_template,
 	file_name=f"{environment}.{table_name}.sql",
 	mime="text/plain"
 	)
+    st.code(script_template)
