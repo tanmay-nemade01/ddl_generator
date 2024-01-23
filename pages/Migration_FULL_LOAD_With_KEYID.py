@@ -635,3 +635,9 @@ if file is not None:
     script_template = script_template.replace('<CDC_TARGET1>',copy_table)
 
     st.code(script_template)
+    st.download_button(
+	label="Download SQL Code",
+        data=script_template,
+	file_name=f"{environment}.{table_name}.sql",
+	mime="text/plain"
+	)
