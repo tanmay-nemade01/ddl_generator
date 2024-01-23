@@ -618,7 +618,7 @@ if file is not None:
     st.code(script_template)
     st.download_button(
 	label="Download SQL Code",
-        data=sql_code,
+        data=script_template,
 	file_name=f"{environment}.{table_name}.sql",
 	mime="text/plain"
 	)
