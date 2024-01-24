@@ -617,10 +617,11 @@ if file is not None:
     script_template = script_template.replace('<s-t>',pk_s_t[:-5])
     script_template = script_template.replace('<table_key>',primary_keys)
 
-    st.code(script_template)
     st.download_button(
 	label="Download SQL Code",
         data=script_template,
 	file_name=f"{environment}.{table_name}.sql",
 	mime="text/plain"
 	)
+    st.code(script_template)
+
