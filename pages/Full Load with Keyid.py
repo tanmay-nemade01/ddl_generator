@@ -281,6 +281,7 @@ create or replace transient table CDC_<object name>
  create or replace table <object name> LIKE CDC_<object name>;
  
 ALTER TABLE <SF_source>.<object name> set tag ADMIN_INGEST_FLOWS.LOAD_TYPE= 'FULL_LOAD';
+ALTER TABLE <SF_source>.<object name> set tag ADMIN_INGEST_FLOWS.METHOD= 'SFS';
  
  -- Activate Change tracking for the stream on CDC table
 ALTER table CDC_<object name> SET CHANGE_TRACKING = TRUE;
