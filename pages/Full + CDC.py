@@ -325,7 +325,7 @@ create or replace stream ST_<SF_source>_<object name>_CDC on table CDC_<object n
       
       if (l_message ='SUCCESS' or l_message ='WARNING' ) --if(l_message in ('SUCCESS','WARNING' )
       THEN
-          DELETE FROM ADMIN_INGEST_FLOWS.SQS_CDP_INGEST WHERE RELATIVE_PATH in (SELECT RELATIVE_PATH FROM ST_<SF_source>_<object name>_SQS);
+          select 1;
       ELSE
 		  alter task TS_<SF_source>_<object name>_SQS suspend;
           select * from DDL_ERROR;
@@ -444,11 +444,11 @@ on_error = 'ABORT_STATEMENT';
     nvl(t.OP,'I'), 
 	t.FILE_ROWNUM,
     SEQ_<object name>.nextval as ROWID ,
-    case when t.FILE_DATE >= coalesce(t3.FILE_DATE, 0) then 1 else 0 end F_VALID,
+    1 as F_VALID,
     current_timestamp as RUN_DATE
         from STA_<object name> t	
-        left join (SELECT MAX(FILE_DATE) FILE_DATE , <table_key> from CDC_<object name> GROUP BY  <table_key> ) t3 on <t-t3> -- #key#
-    where t.file_type in ('D','A') ;
+        where t.file_type in ('D','A') and 
+        t.file_date>= (select max(file_date) from CDC_<object name> );
 	
 	
 
