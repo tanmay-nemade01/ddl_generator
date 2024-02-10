@@ -533,7 +533,6 @@ elif environment == 'UAT':
 	wh = 'UAT_CDP_L_B_VW'
 else:
 	wh = 'PRD_CDP_R_S_VW'
-	data['AWS'][0].replace('-uat-','-prd-')
 if file is not None:
     data  = pd.read_csv(file)
     data = main_function(data, table_name, aws_url, environment, schema, primary_keys)
