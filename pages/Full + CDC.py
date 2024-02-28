@@ -351,7 +351,7 @@ on_error = 'ABORT_STATEMENT';
 
 
   CREATE OR REPLACE TASK TS_<SF_source>_<object name>_CDC
-  WAREHOUSE = <env>_CDP_L_S_VW  
+  WAREHOUSE = <env>_CDP_T_S_VW  
   after TS_<SF_source>_<object name>_STA
   as INSERT INTO CDC_<object name>
 -- FULL --
