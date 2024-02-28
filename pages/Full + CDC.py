@@ -448,7 +448,7 @@ on_error = 'ABORT_STATEMENT';
     current_timestamp as RUN_DATE
         from STA_<object name> t	
         where t.file_type in ('D','A') and 
-        t.file_date>= (select max(file_date) from CDC_<object name> );
+        t.file_date>= (select NVL(max(file_date), 19700101000000000) from CDC_<object name> );
 	
 	
 
