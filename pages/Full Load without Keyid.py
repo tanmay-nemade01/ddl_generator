@@ -315,7 +315,7 @@ CREATE OR REPLACE TASK TS_<SF_source>_<object name>_SQS
       
       if (l_message ='SUCCESS' or l_message ='WARNING' ) --if(l_message in ('SUCCESS','WARNING' )
       THEN
-          DELETE FROM ADMIN_INGEST_FLOWS.SQS_CDP_INGEST WHERE RELATIVE_PATH in (SELECT RELATIVE_PATH FROM ST_<SF_source>_<object name>_SQS);
+          select 1;
       ELSE
 		  alter task TS_<SF_source>_<object name>_SQS suspend;
           select * from DDL_ERROR;
