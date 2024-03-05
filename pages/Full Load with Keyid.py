@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 
+
 schema = st.text_input('Enter Schema')
 schema = schema.upper()
 schema = schema.replace(' ','')
@@ -122,7 +123,7 @@ def main_function(json_data, table_name, aws_url, environment, schema, primary_k
         elif str(type_list[i])[:3].upper() == 'NUM':
             concat_sta_hash.append('NVL((to_number('+str(name_list[i])+','+str(type_list[i][7:])+'),0),')
         elif str(type_list[i])[:3].upper() == 'DEC':
-            concat_sta_hash.append('to_decimal('+str(name_list[i])+','+str(type_list[i][8:])+'),0),')
+            concat_sta_hash.append('NVL((to_decimal('+str(name_list[i])+','+str(type_list[i][8:])+'),0),')
         elif str(type_list[i])[:3].upper() == 'TIM':
             concat_sta_hash.append('NVL(('+str(name_list[i])+"::timestamp),'9999-12-31'),")
         else:
@@ -280,9 +281,9 @@ create or replace transient table CDC_<object name>
 );
  create or replace table <object name> LIKE CDC_<object name>;
  
-ALTER TABLE <SF_source>.<object name> set tag ADMIN_INGEST_FLOWS.LOAD_TYPE= 'FULL_LOAD';
+ALTER TABLE <SF_source>.<object name> set tag ADMIN_INGEST_FLOWS.LOAD_TYPE= 'FULL_LOAD'; 
 ALTER TABLE <SF_source>.<object name> set tag ADMIN_INGEST_FLOWS.METHOD= 'SFS';
- 
+
  -- Activate Change tracking for the stream on CDC table
 ALTER table CDC_<object name> SET CHANGE_TRACKING = TRUE;
  
@@ -295,11 +296,10 @@ ALTER table CDC_<object name> add column ROWID integer;
 ALTER table CDC_<object name> add column F_VALID integer;
 ALTER table CDC_<object name> add column RUN_DATE timestamp;
 
-Alter table  CDC_<object name> set MAX_DATA_EXTENSION_TIME_IN_DAYS = 2;
-
 -- add others METADATA on Processed
 ALTER table <object name> add column FILE_DATE integer;
 
+Alter table  CDC_<object name> set MAX_DATA_EXTENSION_TIME_IN_DAYS = 2;
 
 -- Create a sequence for CDC table (rowid)
 create or replace sequence SEQ_<object name> start = 1 increment = 1;
@@ -312,7 +312,7 @@ create or replace stream ST_<SF_source>_<object name>_CDC on table CDC_<object n
 ------------------------------ TASKS --------------------------------------------------------------
  CREATE OR REPLACE TASK TS_<SF_source>_<object name>_SQS
   WAREHOUSE = <env>_CDP_L_S_VW
-  SCHEDULE = '15 minute'
+  SCHEDULE = '30 minute'
   when system$stream_has_data('ST_<SF_source>_<object name>_SQS') 
   as select 1 ; 
   
@@ -326,7 +326,7 @@ create or replace stream ST_<SF_source>_<object name>_CDC on table CDC_<object n
       
       if (l_message ='SUCCESS' or l_message ='WARNING' ) --if(l_message in ('SUCCESS','WARNING' )
       THEN
-          DELETE FROM ADMIN_INGEST_FLOWS.SQS_CDP_INGEST WHERE RELATIVE_PATH in (SELECT RELATIVE_PATH FROM ST_<SF_source>_<object name>_SQS);
+          select 1;
       ELSE
 		  alter task TS_<SF_source>_<object name>_SQS suspend;
           select * from DDL_ERROR;
@@ -352,7 +352,7 @@ on_error = 'ABORT_STATEMENT';
 
 
   CREATE OR REPLACE TASK TS_<SF_source>_<object name>_CDC
-  WAREHOUSE = <env>_CDP_L_S_VW  
+  WAREHOUSE = <env>_CDP_T_S_VW  
   after TS_<SF_source>_<object name>_STA
   as INSERT INTO CDC_<object name>
 -- FULL --
@@ -445,11 +445,11 @@ on_error = 'ABORT_STATEMENT';
     nvl(t.OP,'I'), 
 	t.FILE_ROWNUM,
     SEQ_<object name>.nextval as ROWID ,
-    case when t.FILE_DATE >= coalesce(t3.FILE_DATE, 0) then 1 else 0 end F_VALID,
+    1 as F_VALID,
     current_timestamp as RUN_DATE
         from STA_<object name> t	
-        left join (SELECT MAX(FILE_DATE) FILE_DATE , <table_key> from CDC_<object name> GROUP BY  <table_key> ) t3 on <t-t3> -- #key#
-    where t.file_type in ('D','A') ;
+        where t.file_type in ('D','A') and 
+        t.file_date>= (select NVL(max(file_date), 19700101000000000) from CDC_<object name> );
 	
 	
 
@@ -545,7 +545,6 @@ if file is not None:
     primary_key_not_null = ''
     null_replacement = data['NULL Replacement']
     name_list = list(data['Column Name'])
-
     copy_table = ''
     for i in range(len(name_list)):
         copy_table = copy_table + name_list[i] +',\n'
@@ -603,10 +602,9 @@ if file is not None:
 
     merge_string = '\n'.join(list(data['Merge U']))
     script_template = script_template.replace('<MERGE>',str(merge_string))
-
-    script_template = script_template.replace('<env>',data['Environment'][0])
     script_template = script_template.replace('<sio>',sio)
     script_template = script_template.replace('<wh>',wh)
+    script_template = script_template.replace('<env>',data['Environment'][0])
     script_template = script_template.replace('<SF_source>',data['Schema'][0])
     script_template = script_template.replace('<object name>',data['Table Name'][0])
     script_template = script_template.replace('<AWS_URL>',data['AWS'][0])
@@ -617,6 +615,7 @@ if file is not None:
     script_template = script_template.replace('<t-t3>',pk_t_t3[:-5])
     script_template = script_template.replace('<s-t>',pk_s_t[:-5])
     script_template = script_template.replace('<table_key>',primary_keys)
+    script_template = script_template.replace('<CDC_TARGET1>',copy_table)
 
     st.download_button(
 	label="Download SQL Code",
@@ -624,5 +623,5 @@ if file is not None:
 	file_name=f"{environment}.{table_name}.sql",
 	mime="text/plain"
 	)
-    st.code(script_template)
 
+    st.code(script_template)
