@@ -391,7 +391,7 @@ on_error = 'ABORT_STATEMENT';
 			-- hashing #columns# Get it from excel sheet Hash
 			<TARGET_HASH>       -- Be careful there are not comma for the last column
 		  ), '-'))) as RECORD_HASH  
-		  from <object name>   
+		  from <object name> where FILE_TYPE = (select distinct file_date from STA_<object name> where FILE_TYPE = 'F' )   
 		),
 		max_date as ( SELECT MAX(FILE_DATE) FILE_DATE , <table_key>  from CDC_<object name> GROUP BY  <table_key> ) -- #key#
 
