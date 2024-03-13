@@ -32,6 +32,7 @@ def main_function(json_data, table_name, aws_url, environment, schema, primary_k
 
     type_list = []
     for i in range(length):
+        data['TYPE'][i] = data['TYPE'][i].replace(' ','')
         type_list.append(data['TYPE'][i].upper())
 
     if 'OP' in name_list:
