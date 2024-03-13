@@ -24,6 +24,7 @@ def main_function(json_data, table_name, aws_url, environment, schema, primary_k
 
     name_list = []
     for i in range(length):
+	data['COLUMN_NAME'][i] = data['COLUMN_NAME'][i].replace(' ','')
         name_list.append(data['COLUMN_NAME'][i].upper())
 
     count = 0
